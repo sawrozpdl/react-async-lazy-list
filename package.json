@@ -1,5 +1,7 @@
 {
-  "version": "0.2.0",
+  "name": "react-async-lazy-list",
+  "version": "0.2.1",
+  "author": "sawrozpdl",
   "license": "MIT",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -33,8 +35,6 @@
     "singleQuote": true,
     "trailingComma": "es5"
   },
-  "name": "react-async-lazy-list",
-  "author": "sawrozpdl",
   "module": "dist/react-async-lazy-list.esm.js",
   "size-limit": [
     {
@@ -60,5 +60,17 @@
     "tsdx": "^0.14.1",
     "tslib": "^2.4.0",
     "typescript": "^4.8.3"
-  }
+  },
+  "keywords": [
+    "react",
+    "async",
+    "lazy",
+    "loading",
+    "fast",
+    "flat",
+    "list",
+    "window",
+    "virtualize",
+    "hooks"
+  ]
 }

@@ -3,7 +3,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom/client';
 import { MagnifyingGlass } from 'react-loader-spinner';
 
-import ReactAsyncLazyList from '../.';
+import ReactAsyncLazyList from 'react-async-lazy-list';
 
 function generateRandomColor() {
   let maxVal = 0xffffff; // 16777215

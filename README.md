@@ -6,13 +6,6 @@
 A lite, customizable and fast async list render component powered by windowing implementation for React 
 </h3>
 
-## Demo
-gh-pages deploy -> [LINK](https://sawrozpdl.github.io/react-async-lazy-list)
-
-
-Sneak-peek GIF:
-![demo-gif](/example/demo.gif)
-
 ---
 
 <p align="center">
@@ -30,7 +23,12 @@ Sneak-peek GIF:
   </a>
 </p>
 
-## Install
+## Demo
+
+![demo-gif](https://media1.tenor.com/images/9b11aebc9852b575a2eb5f8505403a30/tenor.gif)
+
+[View on gh-pages](https://sawrozpdl.github.io/react-async-lazy-list)
+## Installation
 
 ```bash
 npm i react-async-lazy-list
@@ -59,7 +57,7 @@ const loadData = (idx: number): Promise<Node[]> =>
 function App() {
   return (
     <div>
-       <ReactAsyncLazyList
+       <LazyList
           classes={
             root: "lazy-list-container"
           }
@@ -95,7 +93,14 @@ Property | Type | Required | Default value | Description
 
 -----
 as well as custom components like 
-`footerComponent`, `dividerComponent` and `loadingComponent` 
+`footerComponent`, `dividerComponent` and `loadingComponent`  (all optional tho no defaults as of now)
+
+Supported classNames (`props.classes`)
+- root
+- loadingContainer
+- nodeContainer
+- groupContainer
+- footerContainer
 
 ----
 

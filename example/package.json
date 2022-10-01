@@ -1,20 +1,19 @@
 {
-  "name": "example",
+  "name": "react-async-lazy-list-example",
+  "homepage": "https://sawrozpdl.github.io/react-async-lazy-list",
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
   "scripts": {
     "start": "parcel index.html",
-    "build": "parcel build index.html"
+    "build": "parcel build index.html --public-url ./"
   },
   "dependencies": {
+    "react": "^18.2.0",
     "react-app-polyfill": "^1.0.0",
+    "react-async-lazy-list": "^0.2.1",
+    "react-dom": "^18.2.0",
     "react-loader-spinner": "^5.3.4"
-  },
-  "alias": {
-    "react": "../node_modules/react",
-    "react-dom": "../node_modules/react-dom",
-    "scheduler/tracing": "../node_modules/scheduler/tracing-profiling"
   },
   "devDependencies": {
     "@types/react": "^16.9.11",
