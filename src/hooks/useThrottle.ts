@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 
 const noop = () => {};
-type Callback<T> = (...args: T[]) => void;
+type Callback<T> = (...args: any) => T | void;
 
 function useThrottle<T>(
   callback: Callback<T>,
@@ -11,7 +11,7 @@ function useThrottle<T>(
   const timerRef = useRef<number | undefined>(undefined);
 
   const throttledFunction = useCallback(
-    (...args: T[]) => {
+    (...args: any) => {
       if (!ready) {
         return;
       }

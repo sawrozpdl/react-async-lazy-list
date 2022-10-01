@@ -30,18 +30,42 @@ export type SyncItemsLoader<T> = (index: number) => T[];
 
 export type AsyncItemsLoader<T> = (index: number) => Promise<T[]>;
 
-export type RenderFunction<T> = (item: T, index: number) => React.ReactElement;
+export type RenderFunction<T> = (
+  item: T,
+  group?: number,
+  index?: number
+) => React.ReactElement;
+
+export interface LazyListClasses {
+  root?: string;
+  loadingContainer?: string;
+  nodeContainer?: string;
+  groupContainer?: string;
+  footerContainer?: string;
+}
 
 export interface AsyncLazyLoadOptions {
   bufferOffset?: number;
+  scrollThrottle?: number;
+}
+
+export interface GroupProps<T> {
+  group: number;
+  data: T[];
+  setElement: ElementRegistrar<HTMLDivElement>;
+  classes?: LazyListClasses;
+  renderFunction: RenderFunction<T>;
+  style: React.CSSProperties;
+  dividerComponent?: React.ReactElement;
 }
 
 export interface AsyncLazyListProps<T> {
-  style?: React.CSSProperties;
   dataLoader: AsyncItemsLoader<T>;
   renderFunction: RenderFunction<T>;
+  classes?: LazyListClasses;
+  style?: React.CSSProperties;
   dividerComponent?: React.ReactElement;
   loadingComponent?: React.ReactElement;
-  errorComponent?: React.ReactElement;
+  footerComponent?: React.ReactElement;
   options?: AsyncLazyLoadOptions;
 }

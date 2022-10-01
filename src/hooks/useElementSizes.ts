@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 
 import useEventListener from './useEventListener';
 import { ContainerMap, ElementRegistrar, Size, SizeMap } from '../types';
@@ -14,12 +14,12 @@ function useElementSize<T extends HTMLElement = HTMLDivElement>(): [
     height: 0,
   });
 
-  const handleResize = useCallback(() => {
+  const handleResize = () => {
     elementSize.current = {
       width: element?.offsetWidth || 0,
       height: element?.offsetHeight || 0,
     };
-  }, []);
+  };
 
   const setElement = (element: T | null) => {
     _setElement(element);
@@ -35,7 +35,7 @@ function useElementSize<T extends HTMLElement = HTMLDivElement>(): [
   return [elementSize.current, setElement];
 }
 
-function useElementSizes<T extends HTMLElement = HTMLDivElement>(): [
+function useElementSizes<T extends HTMLElement = HTMLElement>(): [
   SizeMap,
   ElementRegistrar<T>
 ] {
@@ -57,7 +57,7 @@ function useElementSizes<T extends HTMLElement = HTMLDivElement>(): [
     }
   };
 
-  const handleResize = useCallback(() => {
+  const handleResize = () => {
     setSizeMap(() => {
       const next: SizeMap = {};
 
@@ -72,7 +72,7 @@ function useElementSizes<T extends HTMLElement = HTMLDivElement>(): [
 
       return next;
     });
-  }, []);
+  };
 
   useEventListener('resize', handleResize);
 

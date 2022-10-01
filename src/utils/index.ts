@@ -1,3 +1,11 @@
+import React from 'react';
+
+export const genericMemo: <T>(component: T) => T = React.memo;
+
+export function hasData<T>(data: Array<T>) {
+  return data && data.length > 0;
+}
+
 export function areItemsEqual<T>(
   arr1: T[],
   arr2: T[],

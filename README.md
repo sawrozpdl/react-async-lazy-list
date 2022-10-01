@@ -1,10 +1,17 @@
 <h2 align='center'>
- React async lazy list (WIP)
+ React async lazy list (Beta)
 </h2>
 
 <h3 align='center'>
-A lite, customizable and fast async list render component for React.
+A lite, customizable and fast async list render component powered by windowing implementation for React 
 </h3>
+
+## Demo
+gh-pages deploy -> [LINK](https://sawrozpdl.github.io/react-async-lazy-list)
+
+
+Sneak-peek GIF:
+![demo-gif](/example/demo.gif)
 
 ---
 
@@ -37,14 +44,40 @@ yarn add react-async-lazy-list
 
 ## Usage
 
-```jsx
+```tsx
 import React from 'react'
 import LazyList from 'react-async-lazy-list'
+
+const BUFFER_SIZE = 10; // Size of data to load/pre-load
+
+const loadData = (idx: number): Promise<Node[]> =>
+  fetchData("some_url", {
+    page: (idx + 1),
+    size: BUFFER_SIZE 
+  })
 
 function App() {
   return (
     <div>
-      <LazyList renderer={() => {}}/>
+       <ReactAsyncLazyList
+          classes={
+            root: "lazy-list-container"
+          }
+          dataLoader={loadData}
+          renderFunction={
+            (node: Node) => <NodeItem node={node} />
+          }
+          dividerComponent={<Divider />}
+          loadingComponent={
+            <Loader
+              height="80"
+              width="100%"
+            />
+          }
+          footerComponent={
+            <Footer label="No more records!" />
+          }
+        />
     </div>
   )
 }
@@ -54,9 +87,26 @@ function App() {
 
 Property | Type | Required | Default value | Description
 :--- | :--- | :--- | :--- | :---
-`renderer`|Function|yes|[]|
+`dataLoader`|Function|yes|-|function to fetch a Node array in batch.
+`renderFunction`|Function|yes|-|function to render a Node
+`classes`|Object|no|-|
+`options`|Object|no|-| Basic configuration
+
 
 -----
+as well as custom components like 
+`footerComponent`, `dividerComponent` and `loadingComponent` 
+
+----
+
+### Options
+Property | Type | Required | Default value | Description
+:--- | :--- | :--- | :--- | :---
+`bufferOffset`|number|no|50|Pre fetch/buffer size in pixels
+`scrollThrottle`|number|no|60|Limit scroll event process with at most 1 fires every X ms.
+
+## Description
+This component uses windowing techniques to virtualize huge lists with minium renders. the user gets to decide the number of data to render each time instead of height assumptions and thus, this supports more flexibility when it comes to leaf components of any sizes/kinds.
 
 ## Contributing
 ---

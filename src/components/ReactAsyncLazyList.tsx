@@ -1,19 +1,38 @@
-import React, { useState, useMemo, useLayoutEffect, useRef } from 'react';
-import { useElementSize, useElementSizes, useThrottle } from '../hooks';
+import React, {
+  useState,
+  useMemo,
+  useLayoutEffect,
+  useRef,
+  useCallback,
+} from 'react';
 
-import { areItemsEqual } from '../utils';
+import {
+  useThrottle,
+  useElementSize,
+  useElementSizes,
+  useConditionalMemo,
+} from '../hooks';
+import Group from './Group';
+import { areItemsEqual, hasData } from '../utils';
+import { BUFFER_OFFSET, SCROLL_THROTTLE } from '../constants';
 import { AsyncLazyListProps, DataMap, HeightMap, ScrollEvent } from '../types';
 
-const OFFSET = 50;
+const checkpointComponent = <div style={{ height: 1, opacity: 0 }}></div>;
 
 function ReactAsyncLazyList<T>(props: AsyncLazyListProps<T>) {
   const {
     style,
+    classes,
+    options = {},
     dataLoader,
     renderFunction,
     loadingComponent,
+    footerComponent,
     dividerComponent,
   } = props;
+
+  const bufferOffset = options.bufferOffset || BUFFER_OFFSET;
+  const scrollThrottle = options.scrollThrottle || SCROLL_THROTTLE;
 
   const [{ height: containerHeight }, setContainer] = useElementSize();
 
@@ -21,11 +40,11 @@ function ReactAsyncLazyList<T>(props: AsyncLazyListProps<T>) {
 
   const [onScroll] = useThrottle(function(e: ScrollEvent) {
     setScrollPosition(e.currentTarget.scrollTop);
-  }, 50);
+  }, scrollThrottle);
 
   const [dataMap, setDataMap] = useState<DataMap<T>>({});
 
-  const [sizeMap, setElement] = useElementSizes();
+  const [sizeMap, setElement] = useElementSizes<HTMLDivElement>();
 
   const [visibleNodes, setVisibleNodes] = useState([0]);
 
@@ -48,81 +67,58 @@ function ReactAsyncLazyList<T>(props: AsyncLazyListProps<T>) {
     return heightMap;
   }, [sizeMap]);
 
-  const readyNextNode = async () => {
-    lastNode.current += 1;
-    console.log('now Fetch ', lastNode.current);
-    setVisibleNodes(prev => [...prev, lastNode.current]);
-  };
+  const buildPositionalStyle = useCallback(
+    (index: number): React.CSSProperties => {
+      const height = parsedHeights[index - 1] || 0;
 
-  useLayoutEffect(() => {
-    if (loading || !containerHeight || !parsedHeights[lastNode.current]) return;
-    if (
-      parsedHeights[lastNode.current] - scrollPosition <=
-        containerHeight + OFFSET &&
-      dataMap[lastNode.current].length !== 0
-    ) {
-      readyNextNode();
-    }
-  }, [scrollPosition, parsedHeights]);
+      return {
+        position: 'absolute',
+        top: height,
+        width: '100%',
+      };
+    },
+    [parsedHeights]
+  );
 
-  const buildPositionalStyle = (index: number): React.CSSProperties => {
-    const height = parsedHeights[index - 1] || 0;
-
-    return {
-      position: 'absolute',
-      top: height,
-      width: '100%',
-    };
-  };
-
-  const loadVisibleData = (indices: number[]) => {
+  const loadData = (indices: number[]) => {
     for (let i = 0; i < indices.length; i++) {
       const index = indices[i];
       if (dataMap[index]) {
-        continue;
+        continue; // Already loaded!
       }
 
-      console.log('Fetching data for node: ', index);
       setLoading(index);
       dataLoader(index).then(list => {
-        console.log('GOt list for ', index, list);
         setDataMap({
           ...dataMap,
           [index]: list || [],
         });
         setLoading(val => (val === index ? null : val));
       });
+
+      break; // Only load one group at a time
     }
   };
 
   // Load required data for visible nodes.
   useLayoutEffect(() => {
-    loadVisibleData(visibleNodes);
+    loadData(visibleNodes);
   }, [visibleNodes]);
 
-  // Figure out which nodes are visible.
-  useLayoutEffect(() => {
-    if (
-      !Boolean(containerHeight) ||
-      !Object.keys(parsedHeights).length ||
-      !parsedHeights[lastNode.current]
-    )
-      return;
+  const readyNextNode = async () => {
+    lastNode.current += 1;
+    setVisibleNodes(prev => [...prev, lastNode.current]);
+  };
 
-    console.log(
-      'Parsed height: ',
-      parsedHeights,
-      scrollPosition,
-      containerHeight
-    );
+  const updateVisibleNodes = () => {
     const newVisibleNodes = Object.keys(parsedHeights).reduce<number[]>(
       (acc, idx) => {
         const currIdx = parseInt(idx);
         const startHeight = parsedHeights[currIdx - 1] || 0;
         const endHeight = parsedHeights[currIdx];
 
-        const windowStart = scrollPosition - OFFSET;
-        const windowEnd = scrollPosition + containerHeight + OFFSET;
+        const windowStart = scrollPosition - bufferOffset;
+        const windowEnd = scrollPosition + containerHeight + bufferOffset;
 
         if (
           (startHeight >= windowStart && startHeight <= windowEnd) ||
@@ -134,41 +130,80 @@ function ReactAsyncLazyList<T>(props: AsyncLazyListProps<T>) {
 
         return acc;
       },
-      parsedHeights[lastNode.current] ? [] : [lastNode.current]
+      []
     );
 
     if (!areItemsEqual(visibleNodes, newVisibleNodes)) {
-      console.log('Changed to : ', newVisibleNodes);
       setVisibleNodes(newVisibleNodes);
+    }
+  };
+
+  // Compute which nodes should be visible.
+  useLayoutEffect(() => {
+    if (
+      loading ||
+      !Boolean(containerHeight) ||
+      !Object.keys(parsedHeights).length
+    )
+      return;
+
+    if (
+      parsedHeights[lastNode.current] - scrollPosition <=
+        containerHeight + bufferOffset &&
+      dataMap[lastNode.current].length !== 0
+    ) {
+      readyNextNode();
+    } else {
+      updateVisibleNodes();
     }
   }, [containerHeight, parsedHeights, scrollPosition]);
 
-  const visibleData = useMemo(() => {
-    console.log('Rendering: ', visibleNodes);
-    return visibleNodes.map(node =>
-      dataMap[node] ? (
-        <div
-          id={node.toString()}
-          ref={com => {
-            setElement(node, com);
-          }}
-          style={buildPositionalStyle(node)}
-          key={'node-' + node}
-        >
-          {dataMap[node].map((item, index) => (
-            <div key={'idx-' + index}>
-              {renderFunction(item, index)}
-              {dividerComponent}
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div key={'load-' + node} style={buildPositionalStyle(node)}>
-          {loadingComponent}
-        </div>
-      )
+  const visibleData = useConditionalMemo(
+    () => {
+      return visibleNodes.map(
+        node =>
+          dataMap[node] && (
+            <Group<T>
+              key={node}
+              group={node}
+              setElement={setElement}
+              data={dataMap[node]}
+              style={buildPositionalStyle(node)}
+              classes={classes}
+              renderFunction={renderFunction}
+              dividerComponent={dividerComponent}
+            />
+          )
+      );
+    },
+    [visibleNodes, dataMap],
+    () => visibleNodes.every(n => hasData(dataMap[n]))
+  );
+
+  // Will act as either of buffer checkpoint/loader or footer region.
+  const footerData = useMemo(() => {
+    const lastData = dataMap[lastNode.current];
+
+    const isLoading = !Boolean(lastData);
+    const isCheckpoint = lastData && lastData.length !== 0;
+
+    return (
+      <div
+        style={buildPositionalStyle(lastNode.current + (isCheckpoint ? 1 : 0))}
+        className={
+          classes?.[
+            dataMap[lastNode.current] ? 'footerContainer' : 'loadingContainer'
+          ]
+        }
+      >
+        {isLoading
+          ? loadingComponent
+          : isCheckpoint
+          ? checkpointComponent
+          : footerComponent}
+      </div>
     );
-  }, [visibleNodes, dataMap]);
+  }, [visibleNodes, dataMap, parsedHeights]);
 
   return (
     <div
@@ -180,9 +215,10 @@ function ReactAsyncLazyList<T>(props: AsyncLazyListProps<T>) {
         ...style,
       }}
       ref={setContainer}
-      className="container"
+      className={classes?.root}
     >
       {visibleData}
+      {footerData}
     </div>
   );
 }
