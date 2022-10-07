@@ -4927,10 +4927,10 @@ react-app-polyfill@^1.0.0:
     regenerator-runtime "^0.13.3"
     whatwg-fetch "^3.0.0"
 
-react-async-lazy-list@^0.2.0:
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/react-async-lazy-list/-/react-async-lazy-list-0.2.0.tgz#fedf81795213e70e147685cf62195bd311837044"
-  integrity sha512-IFDazYKnzeh9QSvCA/g0fYf1ZlUj6k6IQueniDZ7ICA6Mxw0vi89EdD9fi1X9Ku7MzkarlHVtu32VVEf0DGptw==
+react-async-lazy-list@^0.2.1:
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/react-async-lazy-list/-/react-async-lazy-list-0.2.1.tgz#539cbede030498e15b7ceb30af3f89c12cf927b7"
+  integrity sha512-X+n3ufNotixXjV3fgl2kOXON2Qz4p4gHtzjNkZCcLDEg0TVUW8uSMahaRx++MXbOlxrzNaZgG8KxgJyOLxxi+g==
 
 react-dom@^18.2.0:
   version "18.2.0"
