@@ -58,9 +58,9 @@ function App() {
   return (
     <div>
        <LazyList
-          classes={
+          classes={{
             root: "lazy-list-container"
-          }
+          }}
           dataLoader={loadData}
           renderFunction={
             (node: Node) => <NodeItem node={node} />
