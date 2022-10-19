@@ -1,6 +1,6 @@
 {
   "name": "react-async-lazy-list",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "author": "sawrozpdl",
   "license": "MIT",
   "main": "dist/index.js",

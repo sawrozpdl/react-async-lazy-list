@@ -11,7 +11,7 @@
   "dependencies": {
     "react": "^18.2.0",
     "react-app-polyfill": "^1.0.0",
-    "react-async-lazy-list": "^0.2.1",
+    "react-async-lazy-list": "^0.3.1",
     "react-dom": "^18.2.0",
     "react-loader-spinner": "^5.3.4"
   },
