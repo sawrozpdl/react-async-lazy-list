@@ -1,40 +1,26 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useCallback, useRef } from 'react';
 
-const noop = () => {};
-type Callback<T> = (...args: any) => T | void;
+type Callback<K, T> = (param: K) => T | void;
 
-function useThrottle<T>(
-  callback: Callback<T>,
+function useThrottle<K, T>(
+  callback: Callback<K, T>,
   timeout = 300
-): [Callback<T>, boolean] {
-  const [ready, setReady] = useState(true);
-  const timerRef = useRef<number | undefined>(undefined);
+): Callback<K, T> {
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   const throttledFunction = useCallback(
-    (...args: any) => {
-      if (!ready) {
-        return;
+    (param: K) => {
+      if (timerRef.current === null) {
+        timerRef.current = setTimeout(() => {
+          callback(param);
+          timerRef.current = null;
+        }, timeout);
       }
-
-      setReady(false);
-      callback(...args);
     },
-    [ready, callback]
+    [timeout]
   );
 
-  useEffect(() => {
-    if (!ready) {
-      timerRef.current = window.setTimeout(() => {
-        setReady(true);
-      }, timeout);
-
-      return () => window.clearTimeout(timerRef.current);
-    }
-
-    return noop;
-  }, [ready, timeout]);
-
-  return [throttledFunction, ready];
+  return throttledFunction;
 }
 
 export default useThrottle;

@@ -1,10 +1,13 @@
 {
   "name": "react-async-lazy-list",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "author": "sawrozpdl",
   "license": "MIT",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
+  "repository": "https://github.com/sawrozpdl/react-async-lazy-list",
+  "bugs": "https://github.com/sawrozpdl/react-async-lazy-list/issues",
+  "homepage": "https://sawrozpdl.github.io/react-async-lazy-list",
   "files": [
     "dist",
     "src"

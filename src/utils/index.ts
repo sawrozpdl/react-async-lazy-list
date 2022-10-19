@@ -19,3 +19,9 @@ export function areItemsEqual<T>(
 
   return true;
 }
+
+export function log(...params: any[]) {
+  if (process.env.NODE_ENV === 'development') {
+    console.log(...params);
+  }
+}
