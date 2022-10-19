@@ -1,5 +1,5 @@
 <h2 align='center'>
- React async lazy list (Beta)
+ React async lazy list [0.3.0] (Beta)
 </h2>
 
 <h3 align='center'>
